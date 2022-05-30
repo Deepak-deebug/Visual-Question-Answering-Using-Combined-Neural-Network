@@ -1,0 +1,93 @@
+
+<body>
+<center>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8  offset-lg-2">
+
+			
+            <h2 class="mt-5">Visual Question Answering </h2>
+			<form method="post" action="{{ url_for('tasks') }}">
+			<input type="submit" value="Stop/Start" name="stop" />
+			<input type="submit" value="Capture" name="click"/>
+			</form>
+            <img src="{{ url_for('video_feed') }}" height="80%">
+			<h3 style="font-family:courier;">Instructions:</h3>
+			<ol style="font-family:courier;">
+			<h4>1.Stop/Start--Toggle between stop or start live streaming</h4>
+			<h4>2.Capture--Take still-shot and save in the 'shots' directory</h4>
+			 </ol>	
+			
+        </div>
+    </div>
+</div>
+</center>
+  <h1 align="center"><span style="color: #ff7e00">Tell the Question </span><br><span style="font-size: 15px;color: black; font-weight: lighter;"></span></h1>
+  <center>Converting Speech Input To Text</center></br>
+
+		<div id="result" align="center">
+			<br>
+		 <label style="font-size: 15px; color: black">Speech Input:</label>
+      <form action = "http://localhost:5000/result" method = "POST">
+        <input id="result1" size="40" maxlength=100 name = "Name" /></br>
+<br>
+        <button type = "button" style="position:absolute; left:48%;" onclick="startConverting();"></button>
+		<!-- click this button to stop converting-->
+		<button type = "button" style="position:absolute; left:51%;" onclick="stopConverting();"></button>
+	</br>
+         <p><input type = "submit" value = "submit" /></p>
+      </form>
+      
+		<script type="text/javascript">
+		
+		var overlay = document.getElementById("overlay");
+		
+		
+			var r = document.getElementById('result1');
+			var speechRecognizer = new webkitSpeechRecognition();// a new speech recognition object
+			
+			//function to start listening to voice and then convert it to text
+			function startConverting () {
+				if('webkitSpeechRecognition' in window){
+					
+					speechRecognizer.continuous = true;
+					speechRecognizer.interimResults = true;
+					speechRecognizer.lang = 'en-IN';
+					speechRecognizer.start();
+					var finalTranscripts = '';
+					speechRecognizer.onresult = function(event){
+						var interimTranscripts = '';
+						for(var i = event.resultIndex; i < event.results.length; i++){
+							var transcript = event.results[i][0].transcript;
+							transcript.replace("\n", "<br>");
+							if(event.results[i].isFinal){
+								finalTranscripts += transcript;
+							}else{
+								interimTranscripts += transcript;
+							}
+						}
+						r.value = finalTranscripts + interimTranscripts ;
+					};
+					speechRecognizer.onerror = function (event) {
+					};
+				}else{
+					r.innerHTML = 'No browser support. Please upgrade your browser';
+				}
+			}
+			//function to stop listening
+			function stopConverting()
+			{
+				speechRecognizer.stop();
+			}
+		
+		</script>
+     <div class="container" style="text-align:center"> <!-- answer container starts here -->
+            <h4>PREDICT THE ANSWER</h4>
+              <div class="well">
+                {% if answer %}
+                  <h5> {{answer}} </h5>
+                {% else %}
+                  <h5 style='color: blue;'> START A OPERATION </h5>
+                {% endif %}
+              </div>
+</body>
